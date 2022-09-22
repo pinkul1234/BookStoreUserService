@@ -58,6 +58,21 @@ public class UserController {
         Response response = userService.forgotPassword(emailId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @PutMapping("/sendotp")
+    public ResponseEntity<Response> sendOtp(@RequestHeader String token) {
+        Response response = userService.sendOtp(token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PutMapping("/verifyotp/{otp}")
+    public ResponseEntity<Response> validateOtp(@PathVariable Long otp, @RequestHeader String token) {
+        Response response = userService.validateOtp(otp, token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PutMapping("/purchasesubscription")
+    public ResponseEntity<Response> purchaseSubscription(@RequestHeader String token) {
+        Response response = userService.purchaseSubscription(token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     @GetMapping("/validate/{token}")
     public Boolean validate(@PathVariable String token){
         return userService.validate(token);

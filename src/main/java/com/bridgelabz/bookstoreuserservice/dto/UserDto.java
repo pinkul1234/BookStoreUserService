@@ -12,5 +12,5 @@ public class UserDto {
     private String profilePic;
     private String password;
     private Date dateOfBirth;
-    private String otp;
+    private long otp;
 }

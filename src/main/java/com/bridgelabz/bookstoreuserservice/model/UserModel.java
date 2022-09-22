@@ -25,7 +25,9 @@ public class UserModel {
     private boolean isDeleted;
     private Date dateOfBirth;
     private boolean isVerify;
-    private String otp;
+    private long otp;
+    private Date purchaseDate;
+    private Date expiryDate;
 
     public UserModel(UserDto userDto){
         this.fullName = userDto.getFullName();

@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class UserService implements IUserService {
@@ -127,6 +125,56 @@ public class UserService implements IUserService {
         }
         throw new UserNotFoundException(400, "Not found");
     }
+
+    @Override
+    public Response sendOtp(String token) {
+        Long userId = tokenUtil.decodeToken(token);
+        Optional<UserModel> isUserPresent = userRepository.findById(userId);
+        if (isUserPresent.isPresent()) {
+            long min = 100000, max = 999999;
+            long random_long = (long)(Math.random() * (max - min + 1) + min);
+            isUserPresent.get().setOtp(random_long);
+            isUserPresent.get().setUpdatedDate(LocalDateTime.now());
+            userRepository.save(isUserPresent.get());
+            String body = isUserPresent.get().getOtp() + " is your OTP";
+            String subject = "Otp verification";
+            mailService.send(isUserPresent.get().getEmailId(), subject, body);
+            return new Response("success", 200, isUserPresent.get());
+        }
+        throw new UserNotFoundException(500, "Invalid UserId");
+    }
+
+    @Override
+    public Response validateOtp(Long otp, String token) {
+        Long userId = tokenUtil.decodeToken(token);
+        Optional<UserModel> isUserPresent = userRepository.findById(userId);
+        if (isUserPresent.isPresent()) {
+            if (isUserPresent.get().getOtp() == otp) {
+                isUserPresent.get().setVerify(true);
+                return new Response("success", 200, isUserPresent.get());
+            }
+            throw new UserNotFoundException(400, "Not found");
+        }
+        throw new UserNotFoundException(400, "Token is wrong");
+    }
+
+    @Override
+    public Response purchaseSubscription(String token) {
+        Long userId = tokenUtil.decodeToken(token);
+        Optional<UserModel> isUserPresent = userRepository.findById(userId);
+        if (isUserPresent.isPresent()) {
+            isUserPresent.get().setPurchaseDate(new Date());
+            Date date = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.MONTH, 12);
+            Date expireDate = calendar.getTime();
+            isUserPresent.get().setExpiryDate(expireDate);
+            userRepository.save(isUserPresent.get());
+            return new Response("success", 200, isUserPresent.get());
+        }
+        throw new UserNotFoundException(400, "User Not Found");
+    }
     @Override
     public Boolean validate(String token){
         Long userId = tokenUtil.decodeToken(token);
@@ -136,4 +184,5 @@ public class UserService implements IUserService {
         }
         return false;
     }
+
 }

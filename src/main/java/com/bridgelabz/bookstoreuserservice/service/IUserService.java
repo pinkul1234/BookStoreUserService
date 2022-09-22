@@ -26,4 +26,9 @@ public interface IUserService {
 
     Boolean validate(String token);
 
+    Response sendOtp(String token);
+
+    Response validateOtp(Long otp, String token);
+
+    Response purchaseSubscription(String token);
 }
