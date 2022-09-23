@@ -4,7 +4,7 @@ import com.bridgelabz.bookstoreuserservice.dto.UserDto;
 import com.bridgelabz.bookstoreuserservice.exception.UserNotFoundException;
 import com.bridgelabz.bookstoreuserservice.model.UserModel;
 import com.bridgelabz.bookstoreuserservice.repository.UserRepository;
-import com.bridgelabz.bookstoreuserservice.util.Response;
+import com.bridgelabz.bookstoreuserservice.util.UserResponse;
 import com.bridgelabz.bookstoreuserservice.util.ResponseToken;
 import com.bridgelabz.bookstoreuserservice.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +23,17 @@ public class UserService implements IUserService {
     MailService mailService;
 
     @Override
-    public Response createUser(UserDto userDto) {
+    public UserResponse createUser(UserDto userDto) {
         UserModel userModel = new UserModel(userDto);
         userRepository.save(userModel);
         String body = "User added: " + userModel.getId();
         String subject = "User registration successfully";
         mailService.send(userModel.getEmailId(), body, subject);
-        return new Response("Success", 200, userModel);
+        return new UserResponse("Success", 200, userModel);
     }
 
     @Override
-    public Response updateUser(Long userId, String token, UserDto userDto) {
+    public UserResponse updateUser(Long userId, String token, UserDto userDto) {
         Long userIdToken = tokenUtil.decodeToken(token);
         Optional<UserModel> isUserPresent = userRepository.findById(userIdToken);
         if (isUserPresent.isPresent()) {
@@ -47,7 +47,7 @@ public class UserService implements IUserService {
             String subject = "Users details updated successfully";
             mailService.send(isUserPresent.get().getEmailId(), body, subject);
             userRepository.save(isUserPresent.get());
-            return new Response("Success", 200, isUserPresent.get());
+            return new UserResponse("Success", 200, isUserPresent.get());
         }
         throw new UserNotFoundException(400, "User Not Present!!!");
     }
@@ -62,7 +62,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Response deleteUser(Long userId, String token) {
+    public UserResponse deleteUser(Long userId, String token) {
         Long userIdToken = tokenUtil.decodeToken(token);
         Optional<UserModel> isUserPresent = userRepository.findById(userIdToken);
         if (isUserPresent.isPresent()) {
@@ -70,7 +70,7 @@ public class UserService implements IUserService {
             String body = "User deleted: " + isUserPresent.get().getId();
             String subject = "User deleted successfully";
             mailService.send(isUserPresent.get().getEmailId(), body, subject);
-            return new Response("Success", 200, isUserPresent.get());
+            return new UserResponse("Success", 200, isUserPresent.get());
         }
         throw new UserNotFoundException(400, "User does not found");
     }
@@ -89,31 +89,31 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Response verify(String token) {
+    public UserResponse verify(String token) {
         Long id = tokenUtil.decodeToken(token);
         Optional<UserModel> isUserPresent = userRepository.findById(id);
         if (isUserPresent.isPresent() != true){
             isUserPresent.get().setVerify(true);
             userRepository.save(isUserPresent.get());
-            return new Response("success", 200, isUserPresent.get());
+            return new UserResponse("success", 200, isUserPresent.get());
         }
         throw new UserNotFoundException(400, "Not Found");
     }
 
     @Override
-    public Response resetPassword(String resetPassword, String token) {
+    public UserResponse resetPassword(String resetPassword, String token) {
         Long id = tokenUtil.decodeToken(token);
         Optional<UserModel> isUserPresent = userRepository.findById(id);
         if (isUserPresent.isPresent()){
             isUserPresent.get().setPassword(resetPassword);
             userRepository.save(isUserPresent.get());
-            return new Response("Success", 200, isUserPresent.get());
+            return new UserResponse("Success", 200, isUserPresent.get());
         }
         throw new UserNotFoundException(400, "Not found");
     }
 
     @Override
-    public Response forgotPassword(String emailId) {
+    public UserResponse forgotPassword(String emailId) {
         Optional<UserModel> isEmailPresent = userRepository.findByEmailId(emailId);
         if (isEmailPresent.isPresent()){
             String token = tokenUtil.createToken(isEmailPresent.get().getId());
@@ -121,13 +121,13 @@ public class UserService implements IUserService {
             String subject = "forgot password";
             String body = "For reset password click this link" + url + "use this to reset" + token;
             mailService.send(isEmailPresent.get().getEmailId(), subject, body);
-            return new Response("Success", 200, isEmailPresent.get());
+            return new UserResponse("Success", 200, isEmailPresent.get());
         }
         throw new UserNotFoundException(400, "Not found");
     }
 
     @Override
-    public Response sendOtp(String token) {
+    public UserResponse sendOtp(String token) {
         Long userId = tokenUtil.decodeToken(token);
         Optional<UserModel> isUserPresent = userRepository.findById(userId);
         if (isUserPresent.isPresent()) {
@@ -139,19 +139,19 @@ public class UserService implements IUserService {
             String body = isUserPresent.get().getOtp() + " is your OTP";
             String subject = "Otp verification";
             mailService.send(isUserPresent.get().getEmailId(), subject, body);
-            return new Response("success", 200, isUserPresent.get());
+            return new UserResponse("success", 200, isUserPresent.get());
         }
         throw new UserNotFoundException(500, "Invalid UserId");
     }
 
     @Override
-    public Response validateOtp(Long otp, String token) {
+    public UserResponse validateOtp(Long otp, String token) {
         Long userId = tokenUtil.decodeToken(token);
         Optional<UserModel> isUserPresent = userRepository.findById(userId);
         if (isUserPresent.isPresent()) {
             if (isUserPresent.get().getOtp() == otp) {
                 isUserPresent.get().setVerify(true);
-                return new Response("success", 200, isUserPresent.get());
+                return new UserResponse("success", 200, isUserPresent.get());
             }
             throw new UserNotFoundException(400, "Not found");
         }
@@ -159,7 +159,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Response purchaseSubscription(String token) {
+    public UserResponse purchaseSubscription(String token) {
         Long userId = tokenUtil.decodeToken(token);
         Optional<UserModel> isUserPresent = userRepository.findById(userId);
         if (isUserPresent.isPresent()) {
@@ -171,7 +171,7 @@ public class UserService implements IUserService {
             Date expireDate = calendar.getTime();
             isUserPresent.get().setExpiryDate(expireDate);
             userRepository.save(isUserPresent.get());
-            return new Response("success", 200, isUserPresent.get());
+            return new UserResponse("success", 200, isUserPresent.get());
         }
         throw new UserNotFoundException(400, "User Not Found");
     }

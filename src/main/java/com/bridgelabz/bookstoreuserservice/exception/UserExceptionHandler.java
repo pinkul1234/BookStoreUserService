@@ -1,19 +1,30 @@
 package com.bridgelabz.bookstoreuserservice.exception;
 
 
-import com.bridgelabz.bookstoreuserservice.util.Response;
+import com.bridgelabz.bookstoreuserservice.util.UserResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
+
 @ControllerAdvice
 public class UserExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Response> handleHiringException(UserNotFoundException he) {
-        Response response = new Response();
-        response.setErrorCode(400L);
-        response.setMessage(he.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<UserResponse> response(UserNotFoundException userNotFoundException) {
+        UserResponse userResponse = new UserResponse();
+        userResponse.setErrorCode(400);
+        userResponse.setMessage(userNotFoundException.getMessage());
+        return new ResponseEntity<>(userResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<UserResponse>
+    defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
+        UserResponse userResponce = new UserResponse();
+        userResponce.setErrorCode(500);
+        userResponce.setMessage(e.getMessage());
+        return new ResponseEntity<UserResponse>(userResponce, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

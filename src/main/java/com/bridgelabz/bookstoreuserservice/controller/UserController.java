@@ -3,7 +3,7 @@ package com.bridgelabz.bookstoreuserservice.controller;
 import com.bridgelabz.bookstoreuserservice.dto.UserDto;
 import com.bridgelabz.bookstoreuserservice.model.UserModel;
 import com.bridgelabz.bookstoreuserservice.service.IUserService;
-import com.bridgelabz.bookstoreuserservice.util.Response;
+import com.bridgelabz.bookstoreuserservice.util.UserResponse;
 import com.bridgelabz.bookstoreuserservice.util.ResponseToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,13 +19,13 @@ public class UserController {
     IUserService userService;
 
     @PostMapping("/createuser")
-    public ResponseEntity<Response> createUser(@RequestBody UserDto userDto){
-        Response response = userService.createUser(userDto);
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserDto userDto){
+        UserResponse response = userService.createUser(userDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<Response> updateUser(@RequestHeader String token, @RequestBody UserDto userDto, @PathVariable Long userId){
-        Response response = userService.updateUser(userId, token, userDto);
+    public ResponseEntity<UserResponse> updateUser(@RequestHeader String token, @RequestBody UserDto userDto, @PathVariable Long userId){
+        UserResponse response = userService.updateUser(userId, token, userDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/getuserdata")
@@ -34,8 +34,8 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @DeleteMapping("/deleteuser")
-    public ResponseEntity<Response> deleteUser(@PathVariable Long userId, @RequestHeader String token){
-        Response response = userService.deleteUser(userId, token);
+    public ResponseEntity<UserResponse> deleteUser(@PathVariable Long userId, @RequestHeader String token){
+        UserResponse response = userService.deleteUser(userId, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PostMapping("/login")
@@ -44,33 +44,33 @@ public class UserController {
         return new ResponseEntity<>(responseToken, HttpStatus.OK);
     }
     @GetMapping("/verify")
-    public ResponseEntity<Response> verify(@RequestParam String token){
-        Response response = userService.verify(token);
+    public ResponseEntity<UserResponse> verify(@RequestParam String token){
+        UserResponse response = userService.verify(token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PutMapping("/resetpassword")
-    public ResponseEntity<Response> resetPassword(@RequestBody String resetPassword, @PathVariable String token){
-        Response response = userService.resetPassword(resetPassword, token);
+    public ResponseEntity<UserResponse> resetPassword(@RequestBody String resetPassword, @PathVariable String token){
+        UserResponse response = userService.resetPassword(resetPassword, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PostMapping("/forgotpassword")
-    public ResponseEntity<Response> forgotPassword(@RequestParam String emailId){
-        Response response = userService.forgotPassword(emailId);
+    public ResponseEntity<UserResponse> forgotPassword(@RequestParam String emailId){
+        UserResponse response = userService.forgotPassword(emailId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PutMapping("/sendotp")
-    public ResponseEntity<Response> sendOtp(@RequestHeader String token) {
-        Response response = userService.sendOtp(token);
+    public ResponseEntity<UserResponse> sendOtp(@RequestHeader String token) {
+        UserResponse response = userService.sendOtp(token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PutMapping("/verifyotp/{otp}")
-    public ResponseEntity<Response> validateOtp(@PathVariable Long otp, @RequestHeader String token) {
-        Response response = userService.validateOtp(otp, token);
+    public ResponseEntity<UserResponse> validateOtp(@PathVariable Long otp, @RequestHeader String token) {
+        UserResponse response = userService.validateOtp(otp, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PutMapping("/purchasesubscription")
-    public ResponseEntity<Response> purchaseSubscription(@RequestHeader String token) {
-        Response response = userService.purchaseSubscription(token);
+    public ResponseEntity<UserResponse> purchaseSubscription(@RequestHeader String token) {
+        UserResponse response = userService.purchaseSubscription(token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/validate/{token}")
